@@ -1,8 +1,10 @@
 import express from "express";
 import bodyParser from "body-parser";
+import logger from "morgan";
 import cors from "cors";
 import routes from "../api";
 import config from "../config";
+
 export default ({ app }: { app: express.Application }) => {
   /**
    * Health Check endpoints
@@ -26,6 +28,10 @@ export default ({ app }: { app: express.Application }) => {
 
   // Middleware that transforms the raw string of req.body into json
   app.use(bodyParser.json());
+
+  //Log incoming requests to console
+  app.use(logger("dev"));
+
   // Load API routes
   app.use(config.api.prefix, routes());
 

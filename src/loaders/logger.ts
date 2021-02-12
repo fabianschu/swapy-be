@@ -24,6 +24,7 @@ const LoggerInstance = winston.createLogger({
     }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
+    winston.format.colorize(),
     winston.format.json()
   ),
   transports,
