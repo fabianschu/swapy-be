@@ -9,10 +9,13 @@ export default (app: Router) => {
   app.use(route);
   const connection: Connection = Container.get("connection");
 
-  route.get("/users", async (req: Request, res: Response, ne) => {
-    const users = await connection.manager.find(User);
-    return res.json(users).status(200);
-  });
+  route.get(
+    "/users",
+    async (req: Request, res: Response, next: NextFunction) => {
+      const users = await connection.manager.find(User);
+      return res.json(users).status(200);
+    }
+  );
 
   route.post(
     "/users",
