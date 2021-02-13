@@ -1,19 +1,31 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { Container } from "typedi";
-import { Logger } from "winston";
 import { Connection } from "typeorm";
+import { User } from "../../entity/User";
 
 const route = Router();
 
 export default (app: Router) => {
   app.use(route);
+  const connection: Connection = Container.get("connection");
 
-  route.get("/users", (req: Request, res: Response) => {
-    // const logger: Logger = Container.get("logger");
-    // logger.debug("Calling Sign-Up endpoint with body: %o", req.body);
-    const connection: Connection = Container.get("connection");
-    console.log("asdasdasdasdasdasd");
-    console.log(connection);
-    return res.json("users 1,2,3").status(200);
+  route.get("/users", async (req: Request, res: Response, ne) => {
+    const users = await connection.manager.find(User);
+    return res.json(users).status(200);
   });
+
+  route.post(
+    "/users",
+    async (req: Request, res: Response, next: NextFunction) => {
+      let user = new User();
+      user.nonce = req.body.nonce;
+      user.pubAddr = req.body.pubAddr;
+      try {
+        const { id } = await connection.manager.save(user);
+        return res.json(id).status(200);
+      } catch (e) {
+        next(e);
+      }
+    }
+  );
 };
