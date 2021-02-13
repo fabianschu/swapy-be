@@ -1,18 +1,20 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { Container } from "typedi";
 import { Connection } from "typeorm";
+import AuthService from "../../services/auth";
 import { User } from "../../entity/User";
+import { IUserInputDTO } from "../../interfaces/IUser";
 
 const route = Router();
 
 export default (app: Router) => {
   app.use(route);
-  const connection: Connection = Container.get("connection");
+  const userRepository: any = Container.get("userRepository");
 
   route.get(
     "/users",
     async (req: Request, res: Response, next: NextFunction) => {
-      const users = await connection.manager.find(User);
+      const users = await userRepository.find();
       return res.json(users).status(200);
     }
   );
@@ -20,12 +22,13 @@ export default (app: Router) => {
   route.post(
     "/users",
     async (req: Request, res: Response, next: NextFunction) => {
-      let user = new User();
-      user.nonce = req.body.nonce;
-      user.pubAddr = req.body.pubAddr;
+      const authServiceInstance = Container.get(AuthService);
       try {
-        const { id } = await connection.manager.save(user);
-        return res.json(id).status(200);
+        const { user, token } = await authServiceInstance.SignUp(
+          req.body as IUserInputDTO
+        );
+        // const { id } = await connection.manager.save(user);
+        // return res.json(id).status(200);
       } catch (e) {
         next(e);
       }

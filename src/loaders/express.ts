@@ -27,7 +27,11 @@ export default ({ app }: { app: express.Application }) => {
   app.use(cors());
 
   // Middleware that transforms the raw string of req.body into json
-  app.use(bodyParser.json());
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    })
+  );
 
   //Log incoming requests to console
   app.use(logger("dev"));

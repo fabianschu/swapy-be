@@ -1,11 +1,13 @@
 import { Container } from "typedi";
-import { Connection } from "typeorm";
+import { getRepository } from "typeorm";
 import LoggerInstance from "./logger";
 
-export default (connection: Connection) => {
+export default ({ models }: { models: { name: string; model: any }[] }) => {
   try {
+    models.forEach((m) => {
+      Container.set(m.name, getRepository(m.model));
+    });
     Container.set("logger", LoggerInstance);
-    Container.set("connection", connection);
   } catch (e) {
     LoggerInstance.error("🔥 Error on dependency injector loader: %o", e);
     throw e;
