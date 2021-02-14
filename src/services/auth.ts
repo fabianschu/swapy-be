@@ -22,7 +22,8 @@ export default class AuthService {
 
       if (!existingUser) {
         const nonce = this.generateNonce();
-        const id = await this.userRepository.save({ pubAddr, nonce });
+        const { id } = await this.userRepository.save({ pubAddr, nonce });
+        return id;
       }
 
       // const salt = randomBytes(32);

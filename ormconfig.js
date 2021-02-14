@@ -15,7 +15,7 @@ module.exports = {
   entities: ["src/entity/*.ts"],
   synchronize: true,
   migrationsTableName: "migration",
-  migrations: ["migration/*.js"],
+  migrations: ["src/migration/*.ts"],
   cli: {
     entitiesDir: "src/entity",
     migrationsDir: "src/migration",

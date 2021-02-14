@@ -1,8 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { Container } from "typedi";
-import { Connection } from "typeorm";
 import AuthService from "../../services/auth";
-import { User } from "../../entity/User";
 import { IUserInputDTO } from "../../interfaces/IUser";
 
 const route = Router();
@@ -27,7 +25,6 @@ export default (app: Router) => {
         const { user, token } = await authServiceInstance.SignUp(
           req.body as IUserInputDTO
         );
-        // const { id } = await connection.manager.save(user);
         // return res.json(id).status(200);
       } catch (e) {
         next(e);
