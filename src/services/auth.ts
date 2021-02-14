@@ -19,12 +19,11 @@ export default class AuthService {
     try {
       const { pubAddr } = userInputDTO;
       const existingUser = await this.userRepository.findOne({ pubAddr });
+      if (existingUser) return;
 
-      if (!existingUser) {
-        const nonce = this.generateNonce();
-        const { id } = await this.userRepository.save({ pubAddr, nonce });
-        return id;
-      }
+      const nonce = this.generateNonce();
+      const { id } = await this.userRepository.save({ pubAddr, nonce });
+      return id;
 
       // const salt = randomBytes(32);
       // this.logger.silly("Hashing password");
@@ -50,7 +49,6 @@ export default class AuthService {
       // const user = userRecord.toObject();
       // Reflect.deleteProperty(user, "password");
       // Reflect.deleteProperty(user, "salt");
-      return "lol";
     } catch (e) {
       this.logger.error(e);
       throw e;

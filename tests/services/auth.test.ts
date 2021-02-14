@@ -23,9 +23,7 @@ describe("#SignUp", () => {
   });
 
   afterEach(async () => {
-    console.log("after each");
     const user = await userRepository.findOne();
-    console.log(user);
     await userRepository.delete(user.id);
   });
 
@@ -40,5 +38,15 @@ describe("#SignUp", () => {
     const { id } = await authServiceInstance.SignUp(userInputDTO);
     const newUser = await userRepository.findOne(id);
     expect(newUser.pubAddr).toBe("123456789");
+  });
+
+  it("doesn't create the same user a second time", async () => {
+    const userInputDTO = {
+      pubAddr: "123456789",
+    };
+    const oldUser = await authServiceInstance.SignUp(userInputDTO);
+    console.log(oldUser);
+    const newUser = await authServiceInstance.SignUp(userInputDTO);
+    expect(newUser).toBeUndefined();
   });
 });
