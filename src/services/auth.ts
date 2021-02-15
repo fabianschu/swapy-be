@@ -18,8 +18,8 @@ export default class AuthService {
   public async SignUp(userInputDTO: IUserInputDTO): Promise<any> {
     try {
       const { pubAddr } = userInputDTO;
-      const existingUser = await this.userRepository.findOne({ pubAddr });
-      if (existingUser) return;
+      const userRecord = await this.userRepository.findOne({ pubAddr });
+      if (userRecord) return;
 
       const nonce = this.generateNonce();
       const { id } = await this.userRepository.save({ pubAddr, nonce });
@@ -54,36 +54,42 @@ export default class AuthService {
       throw e;
     }
   }
-
-  // public async SignIn(
-  //   email: string,
-  //   password: string
-  // ): Promise<{ user: IUser; token: string }> {
-  //   const userRecord = await this.userModel.findOne({ email });
-  //   if (!userRecord) {
-  //     throw new Error("User not registered");
-  //   }
-  //   /**
-  //    * We use verify from argon2 to prevent 'timing based' attacks
-  //    */
-  //   this.logger.silly("Checking password");
-  //   const validPassword = await argon2.verify(userRecord.password, password);
-  //   if (validPassword) {
-  //     this.logger.silly("Password is valid!");
-  //     this.logger.silly("Generating JWT");
-  //     const token = this.generateToken(userRecord);
-
-  //     const user = userRecord.toObject();
-  //     Reflect.deleteProperty(user, "password");
-  //     Reflect.deleteProperty(user, "salt");
-  //     /**
-  //      * Easy as pie, you don't need passport.js anymore :)
-  //      */
-  //     return { user, token };
-  //   } else {
-  //     throw new Error("Invalid Password");
-  //   }
-  // }
+  // Promise<{ user: IUser; token: string }>
+  public async SignIn(userInputDTO: IUserInputDTO): Promise<any> {
+    try {
+      const { pubAddr } = userInputDTO;
+      const userRecord = await this.userRepository.findOne({ pubAddr });
+      if (!userRecord) {
+        throw new Error("User not registered");
+      }
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
+    }
+    //   const userRecord = await this.userModel.findOne({ email });
+    // if (!userRecord) {
+    //   throw new Error("User not registered");
+    // }
+    //   /**
+    //    * We use verify from argon2 to prevent 'timing based' attacks
+    //    */
+    //   this.logger.silly("Checking password");
+    //   const validPassword = await argon2.verify(userRecord.password, password);
+    //   if (validPassword) {
+    //     this.logger.silly("Password is valid!");
+    //     this.logger.silly("Generating JWT");
+    //     const token = this.generateToken(userRecord);
+    //     const user = userRecord.toObject();
+    //     Reflect.deleteProperty(user, "password");
+    //     Reflect.deleteProperty(user, "salt");
+    //     /**
+    //      * Easy as pie, you don't need passport.js anymore :)
+    //      */
+    //     return { user, token };
+    //   } else {
+    //     throw new Error("Invalid Password");
+    //   }
+  }
 
   private generateToken(user) {
     const today = new Date();

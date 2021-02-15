@@ -3,10 +3,9 @@ import express from "express";
 
 let expressApp = null;
 
-beforeAll(async (done) => {
+beforeAll(async () => {
   expressApp = express();
   await require("../../src/loaders").default({ expressApp });
-  done();
 });
 
 describe("GET /users", () => {
