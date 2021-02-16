@@ -59,6 +59,11 @@ describe("AuthService", () => {
   });
 
   describe("#SignIn", () => {
+    afterEach(async () => {
+      const user = await userRepository.findOne();
+      user && (await userRepository.delete(user.id));
+    });
+
     it("throws an error if the public address does not exist", async () => {
       const userInputDTO = {
         pubAddr: publicAddress,

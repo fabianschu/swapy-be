@@ -10,10 +10,12 @@ export default (app: Router) => {
   const userRepository: any = Container.get("userRepository");
 
   route.get(
-    "/users",
+    "/users/:pubAddr",
     async (req: Request, res: Response, next: NextFunction) => {
-      const users = await userRepository.find();
-      return res.json(users).status(200);
+      const { pubAddr } = req.params;
+      const user = await userRepository.findOne({ pubAddr });
+      if (!user) return res.status(400).json({ error: "User not found" });
+      return res.json({ pubAddr, nonce: user.nonce }).status(200);
     }
   );
 
@@ -21,14 +23,10 @@ export default (app: Router) => {
     "/users",
     async (req: Request, res: Response, next: NextFunction) => {
       const authServiceInstance = Container.get(AuthService);
-      try {
-        const { user, token } = await authServiceInstance.SignUp(
-          req.body as IUserInputDTO
-        );
-        // return res.json(id).status(200);
-      } catch (e) {
-        next(e);
-      }
+      const { user, token } = await authServiceInstance.SignUp(
+        req.body as IUserInputDTO
+      );
+      // return res.json(id).status(200);
     }
   );
 };
