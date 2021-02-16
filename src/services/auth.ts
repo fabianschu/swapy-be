@@ -3,7 +3,7 @@ import { Repository } from "typeorm";
 import jwt from "jsonwebtoken";
 import randomstring from "randomstring";
 import config from "../config";
-import { IUserInputDTO } from "../interfaces/IUser";
+import { IUserInputDTO, IUser } from "../interfaces/IUser";
 import { User } from "../entity/User";
 // import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 // import events from '../subscribers/events';
@@ -14,16 +14,16 @@ export default class AuthService {
     @Inject("userRepository") private userRepository: Repository<User>,
     @Inject("logger") private logger
   ) {}
-  //Promise<{ user: IUser; token: string }>
-  public async SignUp(userInputDTO: IUserInputDTO): Promise<any> {
+  public async SignUp(userInputDTO: IUserInputDTO): Promise<IUser | any> {
     try {
       const { pubAddr } = userInputDTO;
       const userRecord = await this.userRepository.findOne({ pubAddr });
-      if (userRecord) return;
-
+      if (userRecord) throw new Error("User cannot be created");
       const nonce = this.generateNonce();
-      const { id } = await this.userRepository.save({ pubAddr, nonce });
-      return id;
+      return await this.userRepository.save({
+        pubAddr,
+        nonce,
+      });
 
       // const salt = randomBytes(32);
       // this.logger.silly("Hashing password");
@@ -51,7 +51,7 @@ export default class AuthService {
       // Reflect.deleteProperty(user, "salt");
     } catch (e) {
       this.logger.error(e);
-      throw e;
+      return e;
     }
   }
   // Promise<{ user: IUser; token: string }>
@@ -64,7 +64,7 @@ export default class AuthService {
       }
     } catch (e) {
       this.logger.error(e);
-      throw e;
+      return e;
     }
     //   const userRecord = await this.userModel.findOne({ email });
     // if (!userRecord) {
