@@ -4,7 +4,12 @@ import {
   Repository,
   Connection,
 } from "typeorm";
-import { privateToAddress, ecsign, hashPersonalMessage } from "ethereumjs-util";
+import {
+  privateToAddress,
+  ecsign,
+  hashPersonalMessage,
+  ECDSASignature,
+} from "ethereumjs-util";
 import AuthService from "../../src/services/authService";
 import { User } from "../../src/entity/User";
 
@@ -26,6 +31,7 @@ describe("AuthService", () => {
 
   const mockLoggerInstance = {
     error() {},
+    silly() {},
   };
 
   beforeAll(async () => {
@@ -69,24 +75,47 @@ describe("AuthService", () => {
       user && (await userRepository.delete(user.id));
     });
 
-    // it("returns an error if the public address does not exist", async () => {
-    //   const userInputDTO = {
-    //     pubAddr: publicAddress,
-    //   };
-    //   const { message } = await authServiceInstance.SignIn(userInputDTO);
-    //   expect(message).toMatch("Invalid");
-    // });
-
     it("returns an error if the public address does not exist", async () => {
+      const userInputDTO = {
+        pubAddr: publicAddress,
+      };
+      const { message } = await authServiceInstance.SignIn(userInputDTO);
+      expect(message).toMatch("Invalid");
+    });
+
+    it("returns an error if no signature is provided", async () => {
+      await userRepository.save({ pubAddr: publicAddress, nonce: "bubu" });
+      const userInputDTO = {
+        pubAddr: publicAddress,
+        signedNonce: null,
+      };
+      const { message } = await authServiceInstance.SignIn(userInputDTO);
+      expect(message).toMatch("Invalid");
+    });
+
+    it("returns an error if wrong signature is provided", async () => {
+      await userRepository.save({ pubAddr: publicAddress, nonce: "bubu" });
+      const userInputDTO = {
+        pubAddr: publicAddress,
+        signedNonce: {
+          r: Buffer.from("hello world", "utf8"),
+          s: Buffer.from("hello world", "utf8"),
+          v: 10,
+        },
+      };
+      const { message } = await authServiceInstance.SignIn(userInputDTO);
+      expect(message).toMatch("Invalid");
+    });
+
+    it("returns a JWT if signature is correct", async () => {
       const nonce = "123456";
       await userRepository.save({ pubAddr: publicAddress, nonce: nonce });
       const userInputDTO = {
         pubAddr: publicAddress,
         signedNonce: signMsg(nonce, privateKey),
       };
-      //  const { message } =
-      await authServiceInstance.SignIn(userInputDTO);
-      // expect(message).toMatch("Invalid");
+      const token = await authServiceInstance.SignIn(userInputDTO);
+      expect(token).not.toBeNull();
     });
   });
 });
