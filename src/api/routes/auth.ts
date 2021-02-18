@@ -1,13 +1,14 @@
 import { Router, Request, Response, NextFunction } from "express";
+import { Repository } from "typeorm";
 import { Container } from "typedi";
-import AuthService from "../../services/auth";
-import { IUserInputDTO } from "../../interfaces/IUser";
+import AuthService from "../../services/authService";
+import { IUserInputDTO, IUser } from "../../interfaces/IUser";
 
 const route = Router();
 
 export default (app: Router) => {
   app.use(route);
-  const userRepository: any = Container.get("userRepository");
+  const userRepository: Repository<IUser> = Container.get("userRepository");
   const authServiceInstance = Container.get(AuthService);
 
   route.get(
@@ -36,6 +37,8 @@ export default (app: Router) => {
   route.post(
     "/users/signin",
     async (req: Request, res: Response, next: NextFunction) => {
+      if (!req.body.signedNonce)
+        return res.status(400).json("Signed nonce required");
       const { user, token, message } = await authServiceInstance.SignIn(
         req.body as IUserInputDTO
       );

@@ -1,6 +1,13 @@
 import { Service, Inject } from "typedi";
 import { Repository } from "typeorm";
 import jwt from "jsonwebtoken";
+import {
+  hashPersonalMessage,
+  ECDSASignature,
+  ecrecover,
+  publicToAddress,
+  bufferToHex,
+} from "ethereumjs-util";
 import randomstring from "randomstring";
 import config from "../config";
 import { IUserInputDTO, IUser } from "../interfaces/IUser";
@@ -19,7 +26,7 @@ export default class AuthService {
       const { pubAddr } = userInputDTO;
       const userRecord = await this.userRepository.findOne({ pubAddr });
       if (userRecord) throw new Error("User cannot be created");
-      const nonce = this.generateNonce();
+      const nonce: any = this.generateNonce();
       return await this.userRepository.save({
         pubAddr,
         nonce,
@@ -57,11 +64,16 @@ export default class AuthService {
   // Promise<{ user: IUser; token: string }>
   public async SignIn(userInputDTO: IUserInputDTO): Promise<any> {
     try {
-      const { pubAddr } = userInputDTO;
+      const { pubAddr, signedNonce: signature } = userInputDTO;
       const userRecord = await this.userRepository.findOne({ pubAddr });
       if (!userRecord) {
-        throw new Error("User not registered");
+        throw new Error("Invalid");
       }
+      const validSignature = this.verifyNonce(
+        signature,
+        userRecord.nonce,
+        userRecord.pubAddr
+      );
     } catch (e) {
       this.logger.error(e);
       return e;
@@ -117,7 +129,21 @@ export default class AuthService {
     );
   }
 
-  private generateNonce() {
+  private generateNonce(): String {
     return randomstring.generate();
   }
+
+  private verifyNonce(
+    signature: ECDSASignature,
+    msg: string,
+    pubAddr: string
+  ): boolean {
+    const msgHash = hashPersonalMessage(Buffer.from(msg));
+    const publicKey = ecrecover(msgHash, signature.v, signature.r, signature.s);
+    const addressBuffer = publicToAddress(publicKey);
+    const address = bufferToHex(addressBuffer);
+    return "0x" + pubAddr === address;
+  }
 }
+
+const msg = "dinosaur";

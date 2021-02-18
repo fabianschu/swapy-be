@@ -1,3 +1,5 @@
+import { ECDSASignature } from "ethereumjs-util";
+
 export interface IUser {
   id: number;
   pubAddr: string;
@@ -6,5 +8,5 @@ export interface IUser {
 
 export interface IUserInputDTO {
   pubAddr: string;
-  signedNonce?: string;
+  signedNonce?: ECDSASignature;
 }
