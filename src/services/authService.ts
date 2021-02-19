@@ -51,6 +51,8 @@ export default class AuthService {
       if (!validSignature) throw new Error("Invalid");
 
       const token = this.generateToken(userRecord);
+      const newNonce = this.generateNonce();
+      await this.userRepository.update(userRecord.id, { nonce: newNonce });
       return token;
     } catch (e) {
       this.logger.error(e);
@@ -72,7 +74,7 @@ export default class AuthService {
     );
   }
 
-  private generateNonce(): String {
+  private generateNonce(): string {
     return randomstring.generate();
   }
 

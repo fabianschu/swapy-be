@@ -117,5 +117,17 @@ describe("AuthService", () => {
       const token = await authServiceInstance.SignIn(userInputDTO);
       expect(token).not.toBeNull();
     });
+
+    it("generates a new nonce if signature is correct", async () => {
+      const nonce = "123456";
+      await userRepository.save({ pubAddr: publicAddress, nonce: nonce });
+      const userInputDTO = {
+        pubAddr: publicAddress,
+        signedNonce: signMsg(nonce, privateKey),
+      };
+      await authServiceInstance.SignIn(userInputDTO);
+      const userRecord = await userRepository.findOne();
+      expect(userRecord.nonce).not.toEqual(nonce);
+    });
   });
 });
