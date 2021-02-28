@@ -4,12 +4,7 @@ import {
   Repository,
   Connection,
 } from "typeorm";
-import {
-  privateToAddress,
-  ecsign,
-  hashPersonalMessage,
-  ECDSASignature,
-} from "ethereumjs-util";
+import { privateToAddress, ecsign, hashPersonalMessage } from "ethereumjs-util";
 import AuthService from "../../src/services/authService";
 import { User } from "../../src/entity/User";
 
@@ -17,7 +12,6 @@ const hexString =
   "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 const privateKey = Buffer.from(hexString, "hex");
 const publicAddress = privateToAddress(privateKey).toString("hex");
-console.log(publicAddress);
 
 const signMsg = (msg: string, privKey: Buffer) => {
   const msgHash = hashPersonalMessage(Buffer.from(msg));

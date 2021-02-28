@@ -25,5 +25,22 @@ describe("/proposals route", () => {
         request(app).post(`/api/proposals`).send().expect(400).end(done);
       });
     });
+
+    describe("with valid parameters", () => {
+      afterEach(async () => {
+        const proposal = await proposalRepository.findOne();
+        proposal && (await proposalRepository.delete(proposal.id));
+      });
+
+      it("creates a proposal", async (done) => {
+        const proposal = {
+          offerAddress: "abc123",
+        };
+        await request(app).post(`/api/proposals`).send(proposal);
+        const savedProposal = await proposalRepository.findOne(proposal);
+        expect(savedProposal.offerAddress).toBe(proposal.offerAddress);
+        done();
+      });
+    });
   });
 });

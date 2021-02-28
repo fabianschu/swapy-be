@@ -7,12 +7,12 @@ import { IUserInputDTO, IUser } from "../../interfaces/IUser";
 const route = Router();
 
 export default (app: Router) => {
-  app.use(route);
+  app.use("/users", route);
   const userRepository: Repository<IUser> = Container.get("userRepository");
   const authServiceInstance = Container.get(AuthService);
 
   route.get(
-    "/users/:pubAddr",
+    "/:pubAddr",
     async (req: Request, res: Response, next: NextFunction) => {
       const { pubAddr } = req.params;
       const user = await userRepository.findOne({ pubAddr });
@@ -22,7 +22,7 @@ export default (app: Router) => {
   );
 
   route.post(
-    "/users/signup",
+    "/signup",
     async (req: Request, res: Response, next: NextFunction) => {
       if (!req.body.pubAddr)
         return res.status(400).json({ error: "Public Address required" });
@@ -35,7 +35,7 @@ export default (app: Router) => {
   );
 
   route.post(
-    "/users/signin",
+    "/signin",
     async (req: Request, res: Response, next: NextFunction) => {
       if (!req.body.signedNonce)
         return res.status(400).json("Signed nonce required");

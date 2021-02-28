@@ -6,10 +6,10 @@ export class Proposal {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ default: null, nullable: true })
   offerAddress: string;
 
-  @Column()
+  @Column({ default: null, nullable: true })
   wantedAddress: string;
 
   @ManyToOne(() => User, (user) => user.proposals)
