@@ -7,10 +7,10 @@ export class Proposal {
   id: number;
 
   @Column()
-  offer_address: string;
+  offerAddress: string;
 
   @Column()
-  wanted_address: string;
+  wantedAddress: string;
 
   @ManyToOne(() => User, (user) => user.proposals)
   user: User;
