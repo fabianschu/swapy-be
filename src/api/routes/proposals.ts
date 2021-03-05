@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { Repository } from "typeorm";
 import { Container } from "typedi";
-import AuthService from "../../services/authService";
 import { IProposal } from "../../interfaces/IProposal";
+import middlewares from "../middlewares";
 
 const route = Router();
 
@@ -21,21 +21,22 @@ export default (app: Router) => {
   //   }
   // );
 
-  route.post("/", async (req: Request, res: Response, next: NextFunction) => {
-    const { offerAddress, wantedAddress } = req.body;
-    if (!offerAddress && !wantedAddress)
-      return res.status(400).json({ error: "Public Address required" });
-    console.log("*****");
-    const proposal = await proposalRepository.save(req.body);
-    console.log("#####");
-    console.log(proposal);
-
-    // const { pubAddr, nonce, message } = await authServiceInstance.SignUp(
-    //   req.body as IUserInputDTO
-    // );
-    // if (message) return res.status(409).json(message);
-    return res.json(proposal).status(200);
-  });
+  route.post(
+    "/",
+    middlewares.isAuth,
+    middlewares.attachCurrentUser,
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { offerAddress, wantedAddress } = req.body;
+      if (!offerAddress && !wantedAddress)
+        return res.status(400).json({ error: "Public Address required" });
+      try {
+        const proposal = await proposalRepository.save(req.body);
+        return res.json(proposal).status(200);
+      } catch (e) {
+        return next(e);
+      }
+    }
+  );
 
   // route.post(
   //   "/users/signin",

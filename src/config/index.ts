@@ -10,13 +10,11 @@ if (envFound.error) {
   throw new Error("⚠️  Couldn't find .env file  ⚠️");
 }
 
-const isTest = () => process.env.NODE_ENV === "test";
-
 export default {
   /**
    * Your favorite port
    */
-  port: isTest() ? 5555 : parseInt(process.env.PORT, 10),
+  port: process.env.NODE_ENV === "test" ? 5555 : parseInt(process.env.PORT, 10),
 
   /**
    * That long string from mlab
