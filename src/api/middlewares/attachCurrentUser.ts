@@ -13,8 +13,9 @@ const attachCurrentUser = async (req, res, next) => {
   const Logger: Logger = Container.get("logger");
   try {
     const userRepository = Container.get("userRepository") as Repository<User>;
-    console.log(req.token);
-    const userRecord = await userRepository.find(req.token.pubAddr);
+    const userRecord = await userRepository.find({
+      pubAddr: req.token.pubAddr,
+    });
     if (!userRecord) {
       return res.sendStatus(401);
     }
