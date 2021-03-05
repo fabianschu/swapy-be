@@ -13,9 +13,10 @@ const attachCurrentUser = async (req, res, next) => {
   const Logger: Logger = Container.get("logger");
   try {
     const userRepository = Container.get("userRepository") as Repository<User>;
-    const userRecord = await userRepository.find({
+    const userRecord = await userRepository.findOne({
       pubAddr: req.token.pubAddr,
     });
+    delete userRecord["nonce"];
     if (!userRecord) {
       return res.sendStatus(401);
     }

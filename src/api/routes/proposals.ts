@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { Repository } from "typeorm";
 import { Container } from "typedi";
 import { IProposal } from "../../interfaces/IProposal";
+import { IUserRequest } from "../../interfaces/IExpress";
 import middlewares from "../middlewares";
 
 const route = Router();
@@ -25,7 +26,7 @@ export default (app: Router) => {
     "/",
     middlewares.isAuth,
     middlewares.attachCurrentUser,
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: IUserRequest, res: Response, next: NextFunction) => {
       const { offerAddress, wantedAddress } = req.body;
       if (!offerAddress && !wantedAddress)
         return res.status(400).json({ error: "Public Address required" });
