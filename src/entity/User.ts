@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Proposal } from "./Proposal";
 
 @Entity("users")
 export class User {
@@ -10,4 +11,7 @@ export class User {
 
   @Column()
   nonce: string;
+
+  @OneToMany(() => Proposal, (proposal) => proposal.user)
+  proposals: Proposal[];
 }
