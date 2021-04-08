@@ -25,7 +25,8 @@ export default class AuthService {
     try {
       const { pubAddr } = userInputDTO;
       const userRecord = await this.userRepository.findOne({ pubAddr });
-      if (userRecord) throw new Error("User cannot be created");
+
+      if (userRecord) throw new Error("Address already exists");
       const nonce: any = this.generateNonce();
       return await this.userRepository.save({
         pubAddr,

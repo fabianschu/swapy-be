@@ -59,7 +59,7 @@ describe("AuthService", () => {
       };
       await authServiceInstance.SignUp(userInputDTO);
       const { message } = await authServiceInstance.SignUp(userInputDTO);
-      expect(message).toMatch("User cannot be created");
+      expect(message).toMatch("Address already exists");
     });
   });
 
